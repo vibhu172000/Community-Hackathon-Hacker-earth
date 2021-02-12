@@ -1,0 +1,171 @@
+import random
+from typing import ByteString
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import names
+from datetime import timedelta, date
+import csv
+
+
+def daterange(start_date, end_date):
+    for n in range(int((end_date - start_date).days)):
+        yield start_date + timedelta(n)
+
+
+class Player:
+    def __init__(self, name, age, bmi):
+        self.name = name
+        self.age = age
+        self.bmi = bmi
+
+
+class Record:
+    def __init__(self, playerName, playerAge, playerBMI, totalDistance, currentSpeed, maxspeed, sprintdistance, currentHRT, maxHRT, averageHRT, redzonetime, currentHRR, maxHRR, averageHRR, calories, activityType):
+        self.totalDistance = totalDistance
+        self.currentSpeed = currentSpeed
+        self.playerName = playerName
+        self.playerAge = playerAge
+        self.playerBMI = playerBMI
+        self.maxspeed = maxspeed
+        self.sprintdistance = sprintdistance
+        self.currentHRT = currentHRT
+        self.maxHRT = maxHRT
+        self.averageHRT = averageHRT
+        self.redzonetime = redzonetime
+        self.currentHRR = currentHRR
+        self.maxHRR = maxHRR
+        self.averageHRR = averageHRR
+        self.calories = calories
+        self.activityType = activityType
+
+
+players = []
+records = []
+
+i = 0
+while i < 20:
+    playerName = names.get_full_name()
+    playerAge = random.randrange(18, 40)
+    playerBMI = random.randrange(29, 33)
+
+    player = Player(playerName, playerAge, playerBMI)
+    players.append(player)
+
+    i += 1
+
+
+# Training Days
+# Monday, Wednesday, Friday
+
+# Game Days
+# Sunday
+
+# Recover Days
+# Tuesday, Thursday, Saturday
+
+for p in players:
+    # p.name
+    print('Processing player ' + p.name + ' ' + str(p.age) + ' ' + str(p.bmi))
+
+    start_date = date(2017, 1, 1)
+    end_date = date(2021, 1, 1)
+    for single_date in daterange(start_date, end_date):
+        # print(single_date.strftime("%Y-%m-%d"))
+
+        weekDay = single_date.weekday()
+
+        activityType = ''
+
+        # Training Days
+        if weekDay == 0 or weekDay == 2 or weekDay == 4:
+            CurrentHRT = random.randrange(114, 190)
+            AverageHRT = random.randrange(114, 171)
+            MaxHRT = random.randrange(171, 190)
+            totalDist = random.randrange(10, 15)
+            currentSpeed = random.randrange(13, 25)
+            Maxspeed = random.randrange(1, 25)
+            Sprintdistance = random.randrange(200, 2000)
+            Redzonetime = random.randrange(1, 5)
+            Calories = random.randrange(600, 800)
+            CurrentHRR = 0
+            MaxHRR = 0
+            AverageHRR = 0
+            activityType = 'Training'
+
+        # Recovery Days
+        if(weekDay == 1 or weekDay == 3 or weekDay == 5):
+            CurrentHRT = 0
+            MaxHRT = 0
+            AverageHRT = 0
+            totalDist = random.randrange(0, 5)
+            currentSpeed = random.randrange(0, 8)
+            Maxspeed = max(random.randrange(0, 8), currentSpeed)
+            Sprintdistance = 0
+            CurrentHRR = random.randrange(40, 60)
+            AverageHRR = random.randrange(50, 60)
+            MaxHRR = max(random.randrange(50, 60), AverageHRR)
+            Redzonetime = 0
+            Calories = random.randrange(150, 300)
+            activityType = 'Recovery'
+
+        # Match Day
+        if weekDay == 6:
+            CurrentHRT = random.randrange(135, 190)
+            AverageHRT = random.randrange(135, 171)
+            MaxHRT = random.randrange(171, 190)
+            totalDist = random.randrange(10, 15)
+            currentSpeed = random.randrange(13, 25)
+            Maxspeed = max(random.randrange(13, 25), currentSpeed)
+            Sprintdistance = random.randrange(400, 4000)
+            Redzonetime = random.randrange(5, 10)
+            Calories = random.randrange(1500, 2500)
+            CurrentHRR = 0
+            MaxHRR = 0
+            AverageHRR = 0
+            activityType = 'Match'
+
+        record = Record(playerName=p.name, playerAge=p.age, playerBMI=p.bmi,
+                        totalDistance=totalDist, currentSpeed=currentSpeed, maxspeed=Maxspeed, sprintdistance=Sprintdistance, currentHRT=CurrentHRT, maxHRT=MaxHRT, averageHRT=AverageHRT, redzonetime=Redzonetime, currentHRR=CurrentHRR, maxHRR=MaxHRR, averageHRR=AverageHRR, calories=Calories, activityType=activityType)
+
+        records.append(record)
+
+    # Date ( 01/2017 - 01/2021)
+    # Total Distance (km) (range from 1 to 20)
+    # Current Speed (km/h) (range from 0 to 25 km/h)
+    # Max Speed (km/h) (range from 1 to 25 km/h)
+    # Sprint Distance (m) (range from 0 to 200m)
+    # Current Heart Rate Training (beats/m) (range from 114-190 bpm )
+    # Maximum Heart Rate Training (range 171-190 bpm)
+    # Average Heart Rate Training (range 114-171 bpm)
+    # Time in Red Zone Training min (1-5min)
+    # Current Heart Rate Recovery (beats/m) (45-70 bpm)
+    # Maximum Heart Rate Recovery (60-70 bpm)
+    # Average Heart Rate Recovery (50-60 bpm)
+    # Calories 600-800 calories
+    # Duration minutes (Training = 80, Rugby Game = 80, Walk = 60, Shopping = 60)
+
+# Load records to csv
+#np.savetxt("dataset.csv", records, delimiter=",")
+filename = 'dataset.csv'
+
+try:
+    with open(filename, 'w', newline='') as f:
+        writer = csv.writer(f)
+
+        writer.writerow(["Name", "Age", "BMI", "Current Speed", "Total Distance", "Max Speed",
+                         "Sprint Distance", "Current Heart Rate Training", "Max Heart Rate Training",
+                         "Average Heart Rate Training", "Red Zone Time", "Current Heart Rate Recovery", "Maximum Heart Rate Recovery", "Average Heart Rate Recovery", "Calories", "Activity Type"
+                         ])
+
+        for item in records:
+            writer.writerow([item.playerName, item.playerAge,
+                             item.playerBMI, item.currentSpeed, item.totalDistance,
+                             item.maxspeed, item.sprintdistance, item.currentHRT, item.maxHRT, item.averageHRT, item.redzonetime, item.currentHRR, item.maxHRR, item.averageHRR, item.calories, item.activityType])
+
+except BaseException as e:
+    print('BaseException:', filename)
+else:
+    print('Data has been loaded successfully !')
+
+print(len(records))
